@@ -50,32 +50,59 @@ def zipwith(x, y, f):
         yield f(x[i], y[i])
 
 
+def shift8b(data, factor):
+    return list(map(lambda x: x + factor, data))
+
 ###############################################
 #              U-transformation               #
 ###############################################
 
 
-def uform(data, L, K):
+def uform(data):
     """
-
-    :param data: a numerical sequence {xi} c f(t)
-    :param L: number of resulting spectral coefficients for each (D o I) {xi}; {xi} c f(t) application
-    :param K: number of levels of decomposition
-    :return:
+    Computes an U-form of given data.
+    :param data: a numerical sequence {xi} c f(t); f(t) - signal.
+    :return: U-representation of numerical seqeunce denoted as data.
     """
     # Split into N pieces
-    data = list(chunks(data, len(data) // L))
+    data = list(chunks(data, len(data) // N))
 
     # Integrate pieces get N-dimensional vector
     I = [sum(i) for i in data]
 
-    # Calculate F x I =
-    d = [list(zipwith(fi, I, lambda x, y: y if x else -y)) for fi in F]
-
-    # Reduce N rank matrix to N-dimensional vector with (+) operation
-    [sum(i) for i in d]
+    # Calculate F * I an then reduce N rank matrix to N-dimensional vector with (+) operation
+    return [sum(i) for i in [list(zipwith(fi, I, lambda x, y: y if x else -y)) for fi in F]]
 
 
-# plt.hist(I)
-# plt.title('Tier I')
-# plt.show()
+def uform_dec(data, K=1):
+    """
+    Computes an U-form of given signal decomposition. Decomposition is a signal fragmentation into K equal parts
+    :param data:
+    :return:
+    """
+
+    decomposition = list(chunks(data, len(data) // K))
+
+    # TODO: need to implement concurrent calculation of the following
+    # Wrapper executor objects? Any Python lib?
+    return [uform(di) for di in decomposition]
+
+
+###############################################
+#                Roughening                   #
+###############################################
+
+
+def roughen(u, k):
+    """
+
+    :param u:
+    :param k:
+    :return:
+    """
+
+    P = max([max(list(map(lambda x: abs(x), ui))) for ui in u])
+
+    T = [i*P/k for i in range(k + 1)]
+
+    return T, [list(map(lambda x: int(round(k * x / P)) if x != 0 else 0, ui)) for ui in u]
