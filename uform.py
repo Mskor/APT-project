@@ -53,6 +53,7 @@ def zipwith(x, y, f):
 def shift8b(data, factor):
     return list(map(lambda x: x + factor, data))
 
+
 ###############################################
 #              U-transformation               #
 ###############################################
@@ -101,8 +102,10 @@ def roughen(u, k):
     :return:
     """
 
+    # Find maximal absolute value in U-representation
     P = max([max(list(map(lambda x: abs(x), ui))) for ui in u])
 
-    T = [i*P/k for i in range(k + 1)]
+    # Form a list of intervals with respect to roughening factor k
+    T = [i * P / k for i in range(k + 1)]
 
     return T, [list(map(lambda x: int(round(k * x / P)) if x != 0 else 0, ui)) for ui in u]
