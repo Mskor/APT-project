@@ -32,23 +32,29 @@ def read_file(filename):
 
 
 def read_folder(folder, filterfunc=lambda x: x):
+    print('Reading folder: ' + folder + '...')
     result = []
     onlyfiles = [f for f in listdir(folder) if isfile(join(folder, f))]
+    print('{0} files found.'.format(len(onlyfiles)))
     filteredfiles = filterfunc(onlyfiles)
+    print('Applied filter, {0} out of {1} files will be processed.'.format(len(filteredfiles), len(onlyfiles)))
     for fname in filteredfiles:
+        print('Progress: %.3f%%       \r' % (100*(filteredfiles.index(fname) + 1)/len(filteredfiles)), end="")
         result += read_file(join(folder, fname))
     return result
 
 
-b = read_folder('C:\\Users\\oyakov\Downloads\\bearing_IMS\\1st_test', lambda x: x[-10:])
+b = read_folder('C:\\Users\\oyakov\Downloads\\bearing_IMS\\1st_test', lambda x: x)
 b = uf.shift8b(b, 0.1)
-u = uf.uform_dec(b, 10)
-T, C = uf.roughen(u, 10)
-figs, axes = plt.subplots(nrows=4, ncols=4)
-i = 0
-D = rotate(C)
-for axis in axes:
-    for ax in axis:
-        ax.plot(D[i])
-        i += 1
+# u = uf.uform_dec(b, 100)
+# T, C = uf.roughen(u, 100)
+# figs, axes = plt.subplots(nrows=4, ncols=4)
+# i = 0
+# D = rotate(C)
+# for axis in axes:
+#     for ax in axis:
+#         ax.plot(D[i])
+#         i += 1
+
+plt.plot(b)
 plt.show()
